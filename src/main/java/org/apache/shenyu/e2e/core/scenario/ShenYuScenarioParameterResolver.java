@@ -17,7 +17,6 @@
 
 package org.apache.shenyu.e2e.core.scenario;
 
-import org.apache.shenyu.e2e.core.annotation.ShenYuScenario;
 import org.apache.shenyu.e2e.core.annotation.ShenYuScenarioParameter;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
