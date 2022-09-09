@@ -1,0 +1,7 @@
+version: '2.3'
+
+services:
+  admin:
+    image: ghcr.io/apache/incubator-shenyu/admin:782867187a76f8a273ccc8029e53e3db3f23eb6b
+    expose:
+      - 9095
