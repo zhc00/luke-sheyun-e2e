@@ -28,4 +28,16 @@ public interface AfterEachSpec {
     
     Checker getPostChecker();
     
+    
+    AfterEachSpec DEFAULT = new AfterEachSpec() {
+        @Override
+        public Deleter getDeleter() {
+            return Deleter.DEFAULT;
+        }
+    
+        @Override
+        public Checker getPostChecker() {
+            return Checker.DEFAULT;
+        }
+    };
 }

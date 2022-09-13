@@ -17,10 +17,6 @@
 
 package org.apache.shenyu.e2e.testcase.plugin;
 
-import io.restassured.builder.RequestSpecBuilder;
-import io.restassured.builder.ResponseSpecBuilder;
-import io.restassured.specification.RequestSpecification;
-import io.restassured.specification.ResponseSpecification;
 import org.apache.shenyu.e2e.client.admin.AdminClient;
 import org.apache.shenyu.e2e.client.admin.model.ResourcesData;
 import org.apache.shenyu.e2e.client.admin.model.ResourcesData.Resource;
@@ -40,15 +36,12 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 
-import static io.restassured.RestAssured.given;
-import static org.hamcrest.CoreMatchers.equalTo;
-
 @ShenYuTest(
-        mode = Mode.host,
+        mode = Mode.HOST,
         services = {
                 @ServiceConfigure(
                         serviceName = "admin",
-                        baseUrl = "http://localhost:9095",
+                        baseUrl = "http://{hostname:localhost}:9095",
                         parameters = {
                                 @Parameter(key = "username", value = "admin"),
                                 @Parameter(key = "password", value = "123456"),
@@ -56,7 +49,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
                 ),
                 @ServiceConfigure(
                         serviceName = "gateway",
-                        baseUrl = "http://localhost:9195",
+                        baseUrl = "http://{hostname:localhost}:9195",
                         type = ServiceType.SHENYU_GATEWAY
                 )
         }
@@ -66,39 +59,7 @@ public class PluginsTest {
     @BeforeAll
     static void setup(AdminClient client) {
         client.login();
-    }
-    
-    void test(GatewayClient gateway) {
-//        given()
-//                .baseUri(gateway.getBaseUrl()).
-//        when()
-//                .get( "/get")
-//                .then()
-//                .assertThat()
-//                .statusCode(200)
-//                .body(containsString("172.25.0.2"))
-//                .assertThat()
-//                .body("origin", equalTo("172.25.0.2"));
-//
-//
-        RequestSpecification request = new RequestSpecBuilder()
-                .setBasePath("http://httpbin.org/")
-                .build();
-        ResponseSpecification response = new ResponseSpecBuilder()
-                .expectStatusCode(2001)
-                .expectBody("origin", equalTo("172.25.0.2"))
-                .build();
-        
-        given().baseUri("http://httpbin.org")
-                .when()
-                .get("/get")
-                .then()
-                .statusCode(203);
-
-//        Response get = given().spec(request).request("GET", "/get");
-//        System.out.println(get.body().prettyPrint());
-
-//                .then().statusCode(300).spec(response); //.statusCode(300);
+        client.deleteAllSelectors();
     }
     
     @BeforeEach

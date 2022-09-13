@@ -31,4 +31,20 @@ public interface BeforeEachSpec {
     
     Waiting getWaiting();
     
+    BeforeEachSpec DEFAULT = new BeforeEachSpec() {
+        @Override
+        public Checker getChecker() {
+            return Checker.DEFAULT;
+        }
+    
+        @Override
+        public ResourcesData getResources() {
+            return ResourcesData.builder().build();
+        }
+    
+        @Override
+        public Waiting getWaiting() {
+            return Waiting.DEFAULT;
+        }
+    };
 }

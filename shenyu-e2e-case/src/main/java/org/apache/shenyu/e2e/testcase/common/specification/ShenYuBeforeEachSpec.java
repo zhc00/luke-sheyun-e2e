@@ -30,9 +30,12 @@ import org.apache.shenyu.e2e.client.admin.model.data.SelectorData;
 import org.apache.shenyu.e2e.engine.scenario.function.Checker;
 import org.apache.shenyu.e2e.engine.scenario.function.Waiting;
 import org.apache.shenyu.e2e.engine.scenario.specification.BeforeEachSpec;
+import org.apache.shenyu.e2e.testcase.common.function.HttpChecker;
 import org.apache.shenyu.e2e.testcase.common.function.HttpWaiting;
 import org.apache.shenyu.e2e.testcase.common.function.WaitForHelper;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.concurrent.TimeoutException;
 
 @Getter
 @AllArgsConstructor(access = AccessLevel.PACKAGE)
@@ -67,14 +70,19 @@ public class ShenYuBeforeEachSpec implements BeforeEachSpec {
         }
         
         public ShenYuBeforeEachSpecBuilder waiting(Method method, String endpoint, ResponseSpecification expected) {
-            this.waiting = (HttpWaiting) supplier -> {
-                WaitForHelper.waitForEffecting(supplier, method, endpoint, expected);
-            };
+            this.waiting = (HttpWaiting) supplier -> WaitForHelper.waitForEffecting(supplier, method, endpoint, expected);
             return this;
         }
         
+        @Deprecated
         public ShenYuBeforeEachSpecBuilder waiting(@NotNull Checker checker) {
-//            this.waiting =
+            this.waiting = (HttpWaiting) supplier -> {
+                try {
+                    new WaitForHelper().waitFor(supplier, (HttpChecker) checker);
+                } catch (TimeoutException e) {
+                    e.printStackTrace();
+                }
+            };
             return this;
         }
         

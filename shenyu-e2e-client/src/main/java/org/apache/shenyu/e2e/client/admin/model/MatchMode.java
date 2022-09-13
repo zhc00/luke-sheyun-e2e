@@ -21,9 +21,10 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum MatchMode {
 
-    and(0), or(1);
+    AND(0), OR(1);
     
     private final String id;
+    
     MatchMode(int id) {
         this.id = String.valueOf(id);
     }

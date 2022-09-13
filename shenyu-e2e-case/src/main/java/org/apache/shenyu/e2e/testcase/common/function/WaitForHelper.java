@@ -84,8 +84,41 @@ public class WaitForHelper {
         }
     }
     
+    
+    public void waitFor(Supplier<RequestSpecification> supplier, HttpChecker checker) throws TimeoutException {
+        Future<?> future = executor.submit(() -> {
+            for (int i = 0; i < retryTimes; i++) {
+                try {
+                    checker.check(supplier);
+                    return;
+                } catch (AssertionError e) {
+                    log.info(e.getMessage()); // fixme
+                }
+                
+                try {
+                    TimeUnit.MILLISECONDS.sleep(timeInRetry.toMillis());
+                } catch (InterruptedException ignore) {
+                    break;
+                }
+            }
+            log.info("check endpoint successful");
+        });
+        
+        try {
+            future.get(timeout.toMillis(), TimeUnit.MILLISECONDS);
+        } catch (ExecutionException | InterruptedException | TimeoutException e) {
+            future.cancel(true);
+//            throw new TimeoutException("checking endpoint '" + endpoint + "' timeout after " + timeout);
+            throw new TimeoutException();
+        }
+    }
+    
     public static void waitForEffecting(Supplier<RequestSpecification> supplier, Method method, String endpoint, ResponseSpecification expected) {
         Assertions.assertDoesNotThrow(() -> new WaitForHelper().waitFor(supplier, method, endpoint, expected), "waiting for endpoint to take effect");
     }
-
+    
+    public static void waitForEffecting(Supplier<RequestSpecification> supplier, String endpoint, ResponseSpecification expected) {
+        Assertions.assertDoesNotThrow(() -> new WaitForHelper().waitFor(supplier, Method.GET, endpoint, expected), "waiting for endpoint to take effect");
+    }
+    
 }

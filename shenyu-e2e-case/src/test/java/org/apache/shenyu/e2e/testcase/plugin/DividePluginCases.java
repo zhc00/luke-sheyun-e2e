@@ -50,10 +50,10 @@ public class DividePluginCases implements ShenYuScenarioProvider {
                                 ShenYuBeforeEachSpec.builder()
                                         .addSelectorAndRule(
                                                 newSelectorBuilder("httpbin", Plugin.DIVIDE)
-                                                        .handle(newUpstreamsBuilder("172.25.0.3:80"))
+                                                        .handle(newUpstreamsBuilder("34.227.213.82:80"))
                                                         .conditionList(newConditions(ParamType.URI, Operator.EQUAL, ANYTHING))
                                                         .build(),
-                                                newRuleBuilder("rule", null)
+                                                newRuleBuilder("rule")
                                                         .handle(newDivideRuleHandle())
                                                         .conditionList(newConditions(ParamType.URI, Operator.EQUAL, ANYTHING))
                                                         .build()
@@ -71,9 +71,6 @@ public class DividePluginCases implements ShenYuScenarioProvider {
                                         .build()
                         )
                         .afterEachSpec(ShenYuAfterEachSpec.DEFAULT)
-                        .build(),
-                
-                ShenYuScenarioSpec.builder()
                         .build()
         );
     }

@@ -35,28 +35,66 @@ import java.lang.annotation.Target;
 @TestInstance(Lifecycle.PER_CLASS)
 public @interface ShenYuTest {
     
-    Mode mode() default Mode.docker;
+    /**
+     * Indices whether the depended on services run under ShenYu e2e engine managed.
+     * </p>
+     * Mode.DOCKER: under ShenYu e2e engine managed.
+     * </p>
+     * Mode.HOST: ShenYu e2e engine unmanaged the services.
+     * </p>
+     *
+     * {@see Mode}
+     */
+    @ShenYuValue("{shenyu.e2e.mode}")
+    Mode mode() default Mode.DOCKER;
     
     ServiceConfigure[] services() default {};
     
     String sharedKey() default "global";
     
+    @ShenYuValue("{shenyu.e2e.docker-compose}")
     String dockerComposeFile() default "docker-compose.yml";
     
     @Target(ElementType.TYPE)
     @Retention(RetentionPolicy.RUNTIME)
     @interface ServiceConfigure {
         
+        /**
+         * Indices the service's name.
+         */
+        @ShenYuValue("{shenyu.e2e.services[].serviceName}")
         String serviceName();
         
+        /**
+         * Indices the HTTP schema to access to service.
+         * </p>
+         * That is available for {@link Mode#DOCKER}
+         */
+        @ShenYuValue("{shenyu.e2e.services[].schema}")
         String schema() default "http";
-        
+    
+        /**
+         * Indices the port of service.
+         * </p>
+         * That is available for {@link Mode#DOCKER}
+         */
+        @ShenYuValue("{shenyu.e2e.services[].port}")
         int port() default -1; // TODO to support multi ports for service
-        
+    
+        /**
+         * Indices the baseUrl of service.
+         * </p>
+         * That is available for {@link Mode#HOST}
+         */
+        @ShenYuValue("{shenyu.e2e.services[].baseUrl}")
         String baseUrl() default "";
-        
+    
+        @ShenYuValue("{shenyu.e2e.services[].type}")
         ServiceType type() default ServiceType.SHENYU_ADMIN;
-        
+    
+        /**
+         * Indices more configures about connection.
+         */
         Parameter[] parameters() default {};
     }
     

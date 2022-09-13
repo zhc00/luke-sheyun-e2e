@@ -41,11 +41,11 @@ import java.util.Optional;
 @Slf4j
 @Getter
 public class DockerServiceCompose implements ServiceCompose {
-    private final DockerComposeContainer container;
+    private final DockerComposeContainer<?> container;
     private final DockerConfigure configure;
     
-    private DockerServiceConfigure adminConfigure;
-    private DockerServiceConfigure gatewayConfigure;
+    private final DockerServiceConfigure adminConfigure;
+    private final DockerServiceConfigure gatewayConfigure;
     
     public DockerServiceCompose(DockerConfigure configure) {
         this.configure = configure;
@@ -53,7 +53,7 @@ public class DockerServiceCompose implements ServiceCompose {
         this.gatewayConfigure = configure.getGateway();
         
         DockerComposeFile parsedDockerComposeFile = DockerComposeFile.parse(configure.getDockerComposeFile());
-        container = new DockerComposeContainer("e2e", parsedDockerComposeFile.getFile());
+        container = new DockerComposeContainer<>("e2e", parsedDockerComposeFile.getFile());
         
         List<String> services = parsedDockerComposeFile.getServices();
         services.forEach(name -> container.withLogConsumer(name, new ShenYuLogConsumer()));
@@ -71,8 +71,6 @@ public class DockerServiceCompose implements ServiceCompose {
         externalServices.stream().filter(conf -> conf.getPort() > 1024)
                 .forEach(conf -> container.withExposedService(conf.getServiceName(), conf.getPort()));
         
-        // it should be acted before '@BeforeAll'
-        // 必须在 `@BeforeAll` 执行，以便在 @BeforeAll 完成对服务的初始化操作。
         container.start();
         
         TableView tableView = new TableView("service name", "container port", "mapped host port");

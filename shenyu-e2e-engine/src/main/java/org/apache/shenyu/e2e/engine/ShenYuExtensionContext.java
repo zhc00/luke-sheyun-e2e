@@ -44,11 +44,11 @@ public class ShenYuExtensionContext {
     
     ShenYuExtensionContext(ShenYuEngineConfigure config) {
         switch (config.getMode()) {
-            case host: {
+            case HOST: {
                 serviceCompose = new HostServiceCompose(config.getHostConfigure());
                 break;
             }
-            case docker: {
+            case DOCKER: {
                 serviceCompose = new DockerServiceCompose(config.getDockerConfigure());
                 break;
             }

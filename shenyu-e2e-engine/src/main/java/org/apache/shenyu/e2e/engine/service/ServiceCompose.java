@@ -24,21 +24,6 @@ import org.apache.shenyu.e2e.client.gateway.GatewayClient;
 public interface ServiceCompose {
     
     void start();
-//
-//    /**
-//     * Get ShenYu Admin Server base url.
-//     *
-//     * @return {schema}://{host of admin service}:{port of admin service}
-//     */
-//    String getAdminBaseUrl();
-//
-//
-//    /**
-//     * Get ShenYu Bootstrap(Gateway) server base url.
-//     *
-//     * @return {schema}://{host of bootstrap service}:{port of bootstrap service}
-//     */
-//    String getGatewayBaseUrl();
     
     AdminClient newAdminClient(String scenarioId);
     
@@ -46,25 +31,5 @@ public interface ServiceCompose {
     
     ExternalServiceClient newExternalServiceClient(String externalServiceName);
 
-//    AdminClientConfig getAdminClientConfig();
-//
-//    GatewayClientConfig getGatewayClientConfig();
-//
-//    default AdminClient newAdminClient() {
-//        AdminClientConfig config = getAdminClientConfig();
-//        if (Objects.isNull(config)) {
-//            return null;
-//        }
-//        return new AdminClient(getAdminBaseUrl(), config.getUsername(), config.getPassword());
-//    }
-//
-//    default GatewayClient newGatewayClient() {
-//        GatewayClientConfig config = getGatewayClientConfig();
-//        if (Objects.isNull(config)) {
-//            return null;
-//        }
-//        return new GatewayClient(getGatewayBaseUrl());
-//    }
-    
     void stop();
 }

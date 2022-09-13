@@ -17,22 +17,18 @@
 
 package org.apache.shenyu.e2e.testcase.common.specification;
 
+import com.google.common.base.Strings;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
-import org.apache.shenyu.e2e.client.admin.model.data.RuleData;
-import org.apache.shenyu.e2e.client.admin.model.data.SelectorData;
-import org.apache.shenyu.e2e.engine.scenario.function.Verifier;
+import org.apache.shenyu.e2e.common.IdGenerator;
 import org.apache.shenyu.e2e.engine.scenario.specification.AfterEachSpec;
 import org.apache.shenyu.e2e.engine.scenario.specification.BeforeEachSpec;
 import org.apache.shenyu.e2e.engine.scenario.specification.CaseSpec;
 import org.apache.shenyu.e2e.engine.scenario.specification.ScenarioSpec;
-import org.apache.shenyu.e2e.testcase.common.specification.ShenYuBeforeEachSpec.ShenYuBeforeEachSpecBuilder;
-import org.apache.shenyu.e2e.testcase.common.specification.ShenYuCaseSpec.ShenYuTestCaseSpecBuilder;
+import org.junit.jupiter.api.Assertions;
 
 @Getter
 @AllArgsConstructor
-@Builder(toBuilder = true)
 public class ShenYuScenarioSpec implements ScenarioSpec {
     
     private final String name;
@@ -43,6 +39,46 @@ public class ShenYuScenarioSpec implements ScenarioSpec {
     
     private final AfterEachSpec afterEachSpec;
     
+    public static ShenYuScenarioSpecBuilder builder() {
+        return new ShenYuScenarioSpecBuilder();
+    }
+    
+    public static class ShenYuScenarioSpecBuilder {
+        private String name;
+        private BeforeEachSpec beforeEachSpec = BeforeEachSpec.DEFAULT;
+        private AfterEachSpec afterEachSpec = AfterEachSpec.DEFAULT;
+        
+        private CaseSpec caseSpec;
+        
+        public ShenYuScenarioSpecBuilder name(String name) {
+            this.name = name;
+            return this;
+        }
+        
+        public ShenYuScenarioSpecBuilder beforeEachSpec(BeforeEachSpec beforeEachSpec) {
+            this.beforeEachSpec = beforeEachSpec;
+            return this;
+        }
+        
+        public ShenYuScenarioSpecBuilder caseSpec(CaseSpec caseSpec) {
+            this.caseSpec = caseSpec;
+            return this;
+        }
+        
+        public ShenYuScenarioSpecBuilder afterEachSpec(AfterEachSpec afterEachSpec) {
+            this.afterEachSpec = afterEachSpec;
+            return this;
+        }
+        
+        public ShenYuScenarioSpec build() {
+            Assertions.assertNotNull(caseSpec, "CaseSpec is required.");
+            if (Strings.isNullOrEmpty(name)) {
+                name = "shenyu-" + IdGenerator.generateTestId();
+            }
+            return new ShenYuScenarioSpec(name, beforeEachSpec, caseSpec, afterEachSpec);
+        }
+    }
+
 //    public static void main(String[] args) {
 //        new Builder().newScenario("").before().checker()
 //    }

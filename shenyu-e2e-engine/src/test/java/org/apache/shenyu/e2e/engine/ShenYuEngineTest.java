@@ -19,28 +19,13 @@ package org.apache.shenyu.e2e.engine;
 
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Lists;
 import org.apache.shenyu.e2e.client.admin.AdminClient;
-import org.apache.shenyu.e2e.client.admin.model.MatchMode;
-import org.apache.shenyu.e2e.client.admin.model.Plugin;
-import org.apache.shenyu.e2e.client.admin.model.SelectorType;
-import org.apache.shenyu.e2e.client.admin.model.data.Condition;
-import org.apache.shenyu.e2e.client.admin.model.data.RuleData;
 import org.apache.shenyu.e2e.client.admin.model.data.SearchCondition.SelectorQueryCondition;
-import org.apache.shenyu.e2e.client.admin.model.data.SelectorData;
-import org.apache.shenyu.e2e.client.admin.model.handle.DivideRuleHandle;
-import org.apache.shenyu.e2e.client.admin.model.handle.Upstreams;
-import org.apache.shenyu.e2e.client.admin.model.handle.Upstreams.Upstream;
-import org.apache.shenyu.e2e.client.admin.model.response.RuleDTO;
 import org.apache.shenyu.e2e.client.admin.model.response.SelectorDTO;
 import org.apache.shenyu.e2e.engine.annotation.ShenYuTest;
 import org.apache.shenyu.e2e.engine.annotation.ShenYuTest.Parameter;
 import org.apache.shenyu.e2e.engine.annotation.ShenYuTest.ServiceConfigure;
 import org.apache.shenyu.e2e.engine.config.ShenYuEngineConfigure.Mode;
-import org.apache.shenyu.e2e.matcher.ResourceMatcher;
-import org.apache.shenyu.e2e.matcher.SelectorMatcher;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -50,7 +35,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 import java.util.List;
 
 @ShenYuTest(
-        mode = Mode.host,
+        mode = Mode.HOST,
         services = {
                 @ServiceConfigure(
                         serviceName = "admin",
@@ -73,55 +58,7 @@ public class ShenYuEngineTest {
     @Test
     @Order(0)
     void testCreateSelector(AdminClient client) throws JsonProcessingException {
-//        SelectorData selectorData = SelectorData.builder()
-//                .name("my-plugin-divide")
-//                .plugin(Plugin.divide)
-//                .type(SelectorType.custom)
-//                .matchMode(MatchMode.or)
-//                .sort(1)
-//                .logged(true)
-//                .enabled(true)
-//                .continued(true)
-//                .handle(Upstreams.builder().add(Upstream.builder().upstreamUrl("httpbin.org:80").build()).build())
-//                .conditionList(
-//                        Lists.newArrayList(Condition.builder().paramType("uri").operator("match").paramName("/").paramValue("/**").build())
-//                ).build();
-//        SelectorDTO selector = client.create(selectorData);
-//        List<SelectorDTO> selectors = client.searchSelector(selector.getName());
-//        Assertions.assertThat(selectors.size()).isEqualTo(1);
-//
-//        ObjectMapper mapper = new ObjectMapper();
-//        System.out.println(mapper.writeValueAsString(selector));
-//
-//        new SelectorMatcher(selectorData).matches(selector);
-//
-//
-//        Assertions.assertThat(selectors.get(0)).matches(new ResourceMatcher<>(selectorData), "xx");
-//
-//        RuleDTO ruleDTO = client.create(RuleData.builder()
-//                .name("my-rule")
-//                .enabled(true)
-//                .logged(true)
-//                .handle(DivideRuleHandle.builder()
-//                        .loadBalance("hash")
-//                        .retryStrategy("current")
-//                        .retry(1)
-//                        .timeout(3000)
-//                        .headerMaxSize(10240)
-//                        .requestMaxSize(10240)
-//                        .build())
-//                .sort(1)
-//                .matchMode(MatchMode.and)
-//                .selectorId(selector.getId())
-//                .conditionList(Lists.newArrayList(Condition.builder()
-//                        .paramValue("/z")
-//                        .paramType("uri")
-//                        .paramName("/")
-//                        .operator("=")
-//                        .build()))
-//                .build());
-//
-//        System.out.println(ruleDTO);
+    
     }
     
     @Test
@@ -142,6 +79,6 @@ public class ShenYuEngineTest {
     
     @Test
     void testListRules(AdminClient client) {
-        client.listAllRules().forEach(System.out::println);
+        client.listAllRules().forEach(e -> client.deleteRules(e.getId()));
     }
 }

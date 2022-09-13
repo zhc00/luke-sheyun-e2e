@@ -17,23 +17,32 @@
 
 package org.apache.shenyu.e2e.engine.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.apache.shenyu.e2e.engine.config.ShenYuEngineConfigure.DockerConfigure.DockerServiceConfigure;
-import org.apache.shenyu.e2e.engine.config.ShenYuEngineConfigure.HostConfigure.HostServiceConfigure;
 import org.apache.shenyu.e2e.engine.annotation.ShenYuTest;
 import org.apache.shenyu.e2e.engine.annotation.ShenYuTest.Parameter;
 import org.apache.shenyu.e2e.engine.annotation.ShenYuTest.ServiceConfigure;
+import org.apache.shenyu.e2e.engine.annotation.ShenYuValue;
+import org.apache.shenyu.e2e.engine.config.ShenYuEngineConfigure.DockerConfigure.DockerServiceConfigure;
+import org.apache.shenyu.e2e.engine.config.ShenYuEngineConfigure.HostConfigure.HostServiceConfigure;
 
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Getter
 public class ShenYuEngineConfigure {
+    
+    private static final Pattern EXTRACTOR_PATTERN = Pattern.compile("\\{(.*?)\\}");
+    
+    private static final ObjectMapper mapper = new ObjectMapper();
     
     private Mode mode;
     
@@ -42,15 +51,15 @@ public class ShenYuEngineConfigure {
     private DockerConfigure dockerConfigure;
     
     public boolean isRunOnHost() {
-        return Mode.host == mode;
+        return Mode.HOST == mode;
     }
     
     public boolean isRunOnDocker() {
-        return Mode.docker == mode;
+        return Mode.DOCKER == mode;
     }
     
     public enum Mode {
-        host, docker
+        HOST, DOCKER
     }
     
     public enum ServiceType {
@@ -92,28 +101,30 @@ public class ShenYuEngineConfigure {
             private final Properties properties;
         }
     }
-
-//    @SneakyThrows
-//    public static ShenYuEngineConfigure loadConfigure(String configureFile) {
-//        File file = new File(configureFile);
-//        FileInputStream stream = new FileInputStream(file);
-//        Yaml yaml = new Yaml(new Constructor(ShenYuEngineConfigure.class));
-//        return yaml.load(stream);
-//    }
     
-    // fixme
     public static ShenYuEngineConfigure fromAnnotation(ShenYuTest annotation) {
+        final ShenYuTest annotationProxy = newShenYuTestProxy(annotation);
+    
+        ServiceConfigure[] services = annotationProxy.services();
+        ServiceConfigure[] serviceProxies = new ServiceConfigure[services.length];
+        for (int i = 0; i< services.length; i++) {
+            serviceProxies[i] = newServiceConfigureProxy(i, services[i]);
+        }
+    
         ShenYuEngineConfigure configure = new ShenYuEngineConfigure();
-        configure.mode = annotation.mode();
-        if (Mode.docker == annotation.mode()) {
-            configure.dockerConfigure = parseDockerServiceConfigures(annotation.dockerComposeFile(), annotation.services());
+        configure.mode = annotationProxy.mode();
+        if (Mode.DOCKER == annotationProxy.mode()) {
+            configure.dockerConfigure = parseDockerServiceConfigures(
+                    annotationProxy.dockerComposeFile(),
+                    serviceProxies
+            );
         } else {
-            configure.hostConfigure = parseHostServiceConfigures(annotation.services());
+            configure.hostConfigure = parseHostServiceConfigures(serviceProxies);
         }
         return configure;
     }
     
-    static HostConfigure parseHostServiceConfigures(ServiceConfigure[] serviceConfigures) {
+    private static HostConfigure parseHostServiceConfigures(ServiceConfigure[] serviceConfigures) {
         HostServiceConfigure admin = null;
         HostServiceConfigure gateway = null;
         List<HostServiceConfigure> services = new ArrayList<>();
@@ -133,14 +144,14 @@ public class ShenYuEngineConfigure {
     }
     
     
-    static HostServiceConfigure parseHostServiceConfigure(ServiceConfigure configure) {
+    private static HostServiceConfigure parseHostServiceConfigure(ServiceConfigure configure) {
         Preconditions.checkNotNull(configure.serviceName(), "serviceName is non-nullable");
         Preconditions.checkNotNull(configure.baseUrl(), "baseUrl is non-nullable in docker-compose mode");
         
         return new HostServiceConfigure(configure.serviceName(), configure.baseUrl(), toProperties(configure.parameters()));
     }
     
-    static DockerConfigure parseDockerServiceConfigures(String dockerComposeFile, ServiceConfigure[] serviceConfigures) {
+    private static DockerConfigure parseDockerServiceConfigures(String dockerComposeFile, ServiceConfigure[] serviceConfigures) {
         Preconditions.checkNotNull(Strings.emptyToNull(dockerComposeFile), "dockerComposeFile is required in docker-compose mode");
         
         DockerServiceConfigure admin = null;
@@ -161,15 +172,78 @@ public class ShenYuEngineConfigure {
         return new DockerConfigure(dockerComposeFile, admin, gateway, services);
     }
     
-    static DockerServiceConfigure parseDockerServiceConfigure(ServiceConfigure configure) {
+    private static DockerServiceConfigure parseDockerServiceConfigure(ServiceConfigure configure) {
         Preconditions.checkNotNull(configure.serviceName(), "serviceName is non-nullable");
         
         return new DockerServiceConfigure(configure.schema(), configure.serviceName(), configure.port(), toProperties(configure.parameters()));
     }
     
-    static Properties toProperties(Parameter[] parameters) {
+    private static Properties toProperties(Parameter[] parameters) {
         Properties properties = new Properties();
         Arrays.stream(parameters).forEach(p -> properties.put(p.key(), p.value()));
         return properties;
+    }
+    
+    private static ShenYuTest newShenYuTestProxy(ShenYuTest shenYuTest) {
+        return (ShenYuTest) Proxy.newProxyInstance(
+                ShenYuTest.class.getClassLoader(),
+                new Class[]{ShenYuTest.class},
+                (proxy, method, args) -> {
+                    if (method.isAnnotationPresent(ShenYuValue.class)) {
+                        ShenYuValue annotation = method.getAnnotation(ShenYuValue.class);
+                        
+                        String propertyKey = annotation.value();
+                        propertyKey = propertyKey.substring(1, propertyKey.length() - 1);
+                        String property = System.getProperty(propertyKey);
+                        if (!Strings.isNullOrEmpty(property)) {
+                            return mapper.readValue("\"" + property + "\"", method.getReturnType());
+                        }
+                    }
+                    return normal(method.invoke(shenYuTest), method.getReturnType());
+                });
+    }
+    
+    private static ServiceConfigure newServiceConfigureProxy(final int index, ServiceConfigure serviceConfigure) {
+        return (ServiceConfigure) Proxy.newProxyInstance(
+                ServiceConfigure.class.getClassLoader(),
+                new Class[]{ServiceConfigure.class},
+                (proxy, method, args) -> {
+                    if (method.isAnnotationPresent(ShenYuValue.class)) {
+                        ShenYuValue annotation = method.getAnnotation(ShenYuValue.class);
+                        
+                        String rawKey = annotation.value();
+                        String propertyKey = rawKey.replace("[]", "[" + index + "]")
+                                .substring(1, rawKey.length() - 1);
+                        
+                        String property = System.getProperty(propertyKey);
+                        if (!Strings.isNullOrEmpty(property)) {
+                            return mapper.readValue("\"" + property + "\"", method.getReturnType());
+                        }
+                    }
+                    return normal(method.invoke(serviceConfigure), method.getReturnType());
+                });
+    }
+    
+    private static Object normal(Object obj, Class<?> returnType) {
+        if (String.class == returnType) {
+            String result = obj.toString();
+            
+            Matcher matcher = EXTRACTOR_PATTERN.matcher(result);
+            while (matcher.find()) {
+                String pattern = matcher.group(1);
+                String key = pattern;
+                String val = "null";
+                
+                if (pattern.contains(":")) {
+                    String[] kv = pattern.split(":");
+                    key = kv[0];
+                    val = kv[1];
+                }
+                
+                result = result.replace(matcher.group(0), System.getProperty(key, val));
+            }
+            return result;
+        }
+        return obj;
     }
 }

@@ -15,14 +15,17 @@
  * limitations under the License.
  */
 
-package org.apache.shenyu.e2e.engine.scenario.function;
+package org.apache.shenyu.e2e.engine.annotation;
 
-import org.apache.shenyu.e2e.client.admin.AdminClient;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-@FunctionalInterface
-public interface Deleter {
+@Target({ElementType.FIELD, ElementType.METHOD})
+@Retention(RetentionPolicy.RUNTIME)
+public @interface ShenYuValue {
     
-    void delete(AdminClient client);
+    String value();
     
-    Deleter DEFAULT = client -> {};
 }

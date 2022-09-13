@@ -21,9 +21,10 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum SelectorType {
 
-    full(0), custom(1);
+    FULL(0), CUSTOM(1);
     
     private final String id;
+    
     SelectorType(int id) {
         this.id = String.valueOf(id);
     }

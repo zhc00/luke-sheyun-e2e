@@ -43,18 +43,22 @@ public class ResourceDataTemplate {
         return SelectorData.builder()
                 .name(name)
                 .plugin(plugin)
-                .type(SelectorType.custom)
-                .matchMode(MatchMode.or)
+                .type(SelectorType.CUSTOM)
+                .matchMode(MatchMode.AND)
                 .continued(true)
                 .logged(true)
                 .enabled(true)
                 .sort(1);
     }
     
+    public static RuleData.RuleDataBuilder newRuleBuilder(@Nonnull String name) {
+        return newRuleBuilder(name, null);
+    }
+    
     public static RuleData.RuleDataBuilder newRuleBuilder(@Nonnull String name, String selectorId) {
         return RuleData.builder()
                 .name(name)
-                .matchMode(MatchMode.or)
+                .matchMode(MatchMode.AND)
                 .selectorId(selectorId)
                 .enabled(true)
                 .logged(true)

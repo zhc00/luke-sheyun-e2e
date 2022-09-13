@@ -19,6 +19,8 @@ package org.apache.shenyu.e2e.engine.scenario.specification;
 
 import org.apache.shenyu.e2e.engine.annotation.ShenYuScenarioParameter;
 
+import java.util.Objects;
+
 @ShenYuScenarioParameter
 public interface ScenarioSpec {
     
@@ -26,9 +28,15 @@ public interface ScenarioSpec {
     
     default <T> T getByType(Class<T> type) {
         if (type.isAssignableFrom(BeforeEachSpec.class)) {
+            if (Objects.isNull(getBeforeEachSpec())) {
+                return type.cast(BeforeEachSpec.DEFAULT);
+            }
             return type.cast(getBeforeEachSpec());
         }
         if (type.isAssignableFrom(AfterEachSpec.class)) {
+            if (Objects.isNull(getAfterEachSpec())) {
+                return type.cast(AfterEachSpec.DEFAULT);
+            }
             return type.cast(getAfterEachSpec());
         }
         if (type.isAssignableFrom(CaseSpec.class)) {
