@@ -44,7 +44,6 @@ public class SelectorMatcher {
     
     @SneakyThrows
     public void matches(SelectorDTO actual) {
-        String id = Plugins.INSTANCE.getIdByName(expected.getPluginName());
         String handle = actual.getHandle();
         if (Objects.nonNull(expected.getHandle())) {
             String expected = mapper.writer().writeValueAsString(this.expected.getHandle());
@@ -55,15 +54,15 @@ public class SelectorMatcher {
 //        assertThat(actual, hasProperty("selectorConditions", IsIterableContainingInAnyOrder.containsInAnyOrder(expected.getConditionList()));
         
         assertThat(actual, hasProperty("name", startsWith(expected.getName())));
-        assertThat(actual, hasProperty("pluginId", equalTo(id)));
-        assertThat(actual, hasProperty("type", equalTo(Integer.parseInt(expected.getType()))));
-        assertThat(actual, hasProperty("matchMode", equalTo(Integer.parseInt(expected.getMatchMode()))));
+        assertThat(actual, hasProperty("pluginId", equalTo(expected.getPlugin().getId())));
+        assertThat(actual, hasProperty("type", equalTo(expected.getType().getId())));
+        assertThat(actual, hasProperty("matchMode", equalTo(expected.getMatchMode().getId())));
         assertThat(actual, hasProperty("sort", equalTo(expected.getSort())));
         assertThat(actual, hasProperty("logged", equalTo(expected.isLogged())));
         assertThat(actual, hasProperty("enabled", equalTo(expected.isEnabled())));
     
-        assertThat(actual, hasProperty("typeName", isEmptyOrNullString()));
-        assertThat(actual, hasProperty("matchModeName", isEmptyOrNullString()));
+        assertThat(actual, hasProperty("typeName", equalTo(expected.getType().name())));
+        assertThat(actual, hasProperty("matchModeName", equalTo(expected.getMatchMode().name())));
         
         assertThat(actual, hasProperty("dateCreated", notNullValue()));
         assertThat(actual, hasProperty("dateUpdated", notNullValue()));

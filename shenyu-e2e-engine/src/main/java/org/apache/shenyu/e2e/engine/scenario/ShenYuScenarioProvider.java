@@ -17,10 +17,12 @@
 
 package org.apache.shenyu.e2e.engine.scenario;
 
+import org.apache.shenyu.e2e.engine.scenario.specification.ScenarioSpec;
+
 import java.util.List;
 
 @FunctionalInterface
 public interface ShenYuScenarioProvider {
     
-    List<ShenYuScenarioSpec> get();
+    List<ScenarioSpec> get();
 }

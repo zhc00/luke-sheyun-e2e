@@ -15,14 +15,22 @@
  * limitations under the License.
  */
 
-package org.apache.shenyu.e2e.engine.scenario;
+package org.apache.shenyu.e2e.client.admin.model;
 
-import org.apache.shenyu.e2e.engine.annotation.ShenYuScenarioParameter;
+import com.fasterxml.jackson.annotation.JsonValue;
 
-@ShenYuScenarioParameter
-public interface TestCaseSpec {
+public enum MatchMode {
+
+    and(0), or(1);
     
-    String getName();
-
-    <T> T get(Class<T> type);
+    private final String id;
+    MatchMode(int id) {
+        this.id = String.valueOf(id);
+    }
+    
+    @JsonValue
+    public String getId() {
+        return id;
+    }
+    
 }

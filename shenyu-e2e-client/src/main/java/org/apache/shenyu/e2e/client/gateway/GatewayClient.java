@@ -17,10 +17,16 @@
 
 package org.apache.shenyu.e2e.client.gateway;
 
+import io.restassured.specification.RequestSpecification;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.apache.shenyu.e2e.annotation.ShenYuGatewayClient;
 
 import java.util.Properties;
+import java.util.function.Supplier;
+
+import static io.restassured.RestAssured.given;
+import static io.restassured.RestAssured.when;
 
 /**
  * A client to connect to ShenYu bootstrap(Gateway) server over HTTP.
@@ -30,7 +36,23 @@ import java.util.Properties;
 public class GatewayClient {
     
     private final String scenarioId;
+    
+    @Getter
     private final String baseUrl;
+    
     private final Properties properties;
+    
+    
+    public void request(Object request) {
+//        given()
+//                .spec()
+//        when()
+//                .
+    }
+    
+    
+    public Supplier<RequestSpecification> getHttpRequesterSupplier() {
+        return () -> given().baseUri(getBaseUrl()).when();
+    }
     
 }

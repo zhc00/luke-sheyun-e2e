@@ -24,6 +24,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Builder;
 import lombok.Data;
+import org.apache.shenyu.e2e.client.admin.model.MatchMode;
 import org.apache.shenyu.e2e.client.admin.model.handle.RuleHandle;
 import org.apache.shenyu.e2e.common.IdManagers.Selectors;
 
@@ -33,15 +34,18 @@ import java.util.List;
 @Data
 @Builder(toBuilder = true)
 public class RuleData implements ResourceData {
+    
     private String id;
+    
     private String name;
     
-    @JsonProperty("selectorId")
-    @JsonSerialize(using = Serializer.class)
-    private String selectorName;
+    private String selectorId;
+    
     @JsonProperty("loged")
     private boolean logged;
-    private int matchMode;
+    
+    private MatchMode matchMode;
+    
     private int sort;
     
     @JsonSerialize(using = RuleHandle.Serializer.class)
@@ -52,15 +56,4 @@ public class RuleData implements ResourceData {
     
     private boolean enabled;
     
-//    public RuleData() {
-//    }
-    
-    static class Serializer extends JsonSerializer<String> {
-        
-        @Override
-        public void serialize(String name, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-            String id = Selectors.INSTANCE.getIdByName(name);
-            jsonGenerator.writeString(id);
-        }
-    }
 }

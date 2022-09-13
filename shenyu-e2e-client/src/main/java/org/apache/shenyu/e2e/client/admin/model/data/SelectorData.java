@@ -26,8 +26,10 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.base.Strings;
 import lombok.Builder;
 import lombok.Data;
+import org.apache.shenyu.e2e.client.admin.model.MatchMode;
+import org.apache.shenyu.e2e.client.admin.model.Plugin;
+import org.apache.shenyu.e2e.client.admin.model.SelectorType;
 import org.apache.shenyu.e2e.client.admin.model.handle.PluginHandle;
-import org.apache.shenyu.e2e.common.IdManagers.Plugins;
 
 import java.io.IOException;
 import java.util.List;
@@ -35,19 +37,23 @@ import java.util.List;
 @Data
 @Builder(toBuilder = true)
 public class SelectorData implements ResourceData {
+    
     private String id;
     
-    @JsonProperty("pluginId")
-    @JsonSerialize(using = PluginIdSerializer.class)
-    private String pluginName;
-    
     private String name;
-    private String matchMode;
-    private String type;
-    private int sort;
+    
+    @JsonProperty("pluginId")
+    private Plugin plugin;
+    
+    private SelectorType type;
+    
+    private MatchMode matchMode;
+    
     private boolean enabled;
+    
     @JsonProperty(value = "loged")
     private boolean logged;
+    
     private boolean continued;
     
     @JsonSerialize(using = PluginHandleSerializer.class)
@@ -56,13 +62,7 @@ public class SelectorData implements ResourceData {
     @JsonProperty("selectorConditions")
     private List<Condition> conditionList;
     
-    static class PluginIdSerializer extends JsonSerializer<String> {
-        
-        @Override
-        public void serialize(String pluginName, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-            jsonGenerator.writeString(Plugins.INSTANCE.getIdByName(pluginName));
-        }
-    }
+    private int sort;
     
     static class PluginHandleSerializer extends JsonSerializer<PluginHandle> {
         private static final ObjectMapper mapper = new ObjectMapper();

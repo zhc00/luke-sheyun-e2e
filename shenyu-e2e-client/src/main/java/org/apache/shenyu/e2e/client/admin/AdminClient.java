@@ -26,6 +26,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import org.apache.shenyu.e2e.annotation.ShenYuAdminClient;
 import org.apache.shenyu.e2e.client.admin.model.ShenYuResult;
+import org.apache.shenyu.e2e.client.admin.model.Plugin;
 import org.apache.shenyu.e2e.client.admin.model.data.ResourceData;
 import org.apache.shenyu.e2e.client.admin.model.data.RuleData;
 import org.apache.shenyu.e2e.client.admin.model.data.SearchCondition;
@@ -56,6 +57,8 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
@@ -130,6 +133,14 @@ public class AdminClient {
         List<PluginDTO> plugins = listPlugins();
         plugins.forEach(dto -> name2id.put(dto.getName(), dto.getId()));
         Plugins.INSTANCE.set(name2id);
+    
+//        Map<String, String> pluginMap = Plugin.toMap();
+//        Assertions.assertEquals(name2id.size(), pluginMap.size(), "checking whether Plugin matches");
+//
+//        List<Entry<String, String>> notMatches = pluginMap.entrySet().stream()
+//                .filter(e -> e.getValue().equals(name2id.get(e.getKey())))
+//                .collect(Collectors.toList());
+//        Assertions.assertFalse(notMatches.isEmpty(), "Plugins does match: " + notMatches);
     }
     
     public List<PluginDTO> listPlugins() {

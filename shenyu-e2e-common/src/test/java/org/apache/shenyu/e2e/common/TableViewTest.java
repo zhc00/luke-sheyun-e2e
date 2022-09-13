@@ -19,7 +19,6 @@ package org.apache.shenyu.e2e.common;
 
 import lombok.AllArgsConstructor;
 import lombok.ToString;
-import org.apache.shenyu.e2e.common.TableView;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 

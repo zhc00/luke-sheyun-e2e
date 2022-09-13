@@ -19,9 +19,7 @@ package org.apache.shenyu.e2e.engine.service;
 
 import org.apache.shenyu.e2e.client.ExternalServiceClient;
 import org.apache.shenyu.e2e.client.admin.AdminClient;
-import org.apache.shenyu.e2e.client.admin.AdminClientConfig;
 import org.apache.shenyu.e2e.client.gateway.GatewayClient;
-import org.apache.shenyu.e2e.client.gateway.GatewayClientConfig;
 
 public interface ServiceCompose {
     
@@ -47,7 +45,7 @@ public interface ServiceCompose {
     GatewayClient newGatewayClient(String scenarioId);
     
     ExternalServiceClient newExternalServiceClient(String externalServiceName);
-    
+
 //    AdminClientConfig getAdminClientConfig();
 //
 //    GatewayClientConfig getGatewayClientConfig();

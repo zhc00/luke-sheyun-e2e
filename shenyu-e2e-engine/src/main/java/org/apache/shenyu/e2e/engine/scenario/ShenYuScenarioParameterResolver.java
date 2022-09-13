@@ -18,6 +18,7 @@
 package org.apache.shenyu.e2e.engine.scenario;
 
 import org.apache.shenyu.e2e.engine.annotation.ShenYuScenarioParameter;
+import org.apache.shenyu.e2e.engine.scenario.specification.ScenarioSpec;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.api.extension.ParameterResolutionException;
@@ -26,9 +27,9 @@ import org.junit.platform.commons.util.AnnotationUtils;
 
 public class ShenYuScenarioParameterResolver implements ParameterResolver {
     
-    private final ShenYuScenarioSpec scenarioSpec;
+    private final ScenarioSpec scenarioSpec;
     
-    public ShenYuScenarioParameterResolver(ShenYuScenarioSpec scenarioSpec) {
+    public ShenYuScenarioParameterResolver(ScenarioSpec scenarioSpec) {
         this.scenarioSpec = scenarioSpec;
     }
     
@@ -43,26 +44,4 @@ public class ShenYuScenarioParameterResolver implements ParameterResolver {
         return scenarioSpec.getByType(parameterContext.getParameter().getType());
     }
 
-//    @Override
-//    public void beforeEach(ExtensionContext context) throws Exception {
-//        ShenYuScenarioSupplier supplier = getShenYuScenarioSupplier(context);
-//        if (supplier.hasNext()) {
-//            // do something here...
-//        }
-//        getStore(context).put(ShenYuScenarioSpec.class, supplier.next());
-//    }
-//
-//    static Store getStore(ExtensionContext context) {
-//        return context.getStore(Namespace.GLOBAL);
-//    }
-//
-//    @Override
-//    public void afterEach(ExtensionContext context) throws Exception {
-//        getStore(context).remove(ShenYuScenarioSpec.class);
-//    }
-//
-//    private static ShenYuScenarioSupplier getShenYuScenarioSupplier(ExtensionContext context) {
-//        final Store store = context.getStore(NS.append(context.getRequiredTestMethod()));
-//        return store.get(ShenYuScenarioSupplier.class, ShenYuScenarioSupplier.class);
-//    }
 }

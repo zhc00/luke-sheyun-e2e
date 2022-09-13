@@ -20,7 +20,13 @@ package org.apache.shenyu.e2e.client.admin;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.shenyu.e2e.client.admin.model.MatchMode;
+import org.apache.shenyu.e2e.client.admin.model.SelectorType;
 import org.apache.shenyu.e2e.client.admin.model.data.Condition;
+import org.apache.shenyu.e2e.client.admin.model.Plugin;
+import org.apache.shenyu.e2e.client.admin.model.data.Condition.Operator;
+import org.apache.shenyu.e2e.client.admin.model.data.Condition.ParamType;
 import org.apache.shenyu.e2e.client.admin.model.data.RuleData;
 import org.apache.shenyu.e2e.client.admin.model.data.SearchCondition.SelectorQueryCondition;
 import org.apache.shenyu.e2e.client.admin.model.data.SelectorData;
@@ -29,69 +35,95 @@ import org.apache.shenyu.e2e.client.admin.model.handle.Upstreams;
 import org.apache.shenyu.e2e.client.admin.model.handle.Upstreams.Upstream;
 import org.apache.shenyu.e2e.client.admin.model.response.RuleDTO;
 import org.apache.shenyu.e2e.client.admin.model.response.SelectorDTO;
-import org.apache.shenyu.e2e.matcher.ResourceMatcher;
 import org.apache.shenyu.e2e.matcher.SelectorMatcher;
-import org.apache.shenyu.e2e.engine.config.ShenYuEngineConfigure.Mode;
-import org.apache.shenyu.e2e.engine.annotation.ShenYuTest;
-import org.apache.shenyu.e2e.engine.annotation.ShenYuTest.Parameter;
-import org.apache.shenyu.e2e.engine.annotation.ShenYuTest.ServiceConfigure;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.output.Slf4jLogConsumer;
 
 import java.util.List;
+import java.util.Properties;
 
-@ShenYuTest(
-        mode = Mode.host,
-        services = {
-                @ServiceConfigure(
-                        serviceName = "admin",
-                        baseUrl = "http://localhost:9095",
-                        parameters = {
-                                @Parameter(key = "username", value = "admin"),
-                                @Parameter(key = "password", value = "123456"),
-                        }
-                )
-        }
-)
+@Slf4j
+//@Testcontainers
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class AdminClientTest {
+    static AdminClient client;
+    
+    static GenericContainer<?>  container = new GenericContainer<>("ghcr.io/apache/incubator-shenyu/admin:782867187a76f8a273ccc8029e53e3db3f23eb6b")
+            .withExposedPorts(9095)
+            .withLogConsumer(new Slf4jLogConsumer(log));
     
     @BeforeAll
-    static void setup(AdminClient client) {
+    static void setup() {
+//        container.start();
+//        container.waitingFor(new HttpWaitStrategy()
+//                .allowInsecure()
+//                .forPort(9095)
+//                .withMethod("GET")
+//                .forPath("/actuator")
+//                .forStatusCode(200)
+//                .withReadTimeout(Duration.ofMinutes(1))
+//                .withStartupTimeout(Duration.ofMinutes(3)));
+        int port = 9095;// container.getMappedPort(9095);
+        
+        Properties properties = new Properties();
+        properties.put("username", "admin");
+        properties.put("password", "123456");
+        
+        client = new AdminClient("shenyu-e2e", "http://localhost:" + port, properties);
         client.login();
     }
     
     @Test
-    @Order(0)
-    void testCreateSelector(AdminClient client) throws JsonProcessingException {
+    void test() {
         SelectorData selectorData = SelectorData.builder()
                 .name("my-plugin-divide")
-                .pluginName("divide")
-                .type("1")
-                .sort(1)
-                .matchMode("1")
+                .plugin(Plugin.DIVIDE)
+                .type(SelectorType.custom)
+                .matchMode(MatchMode.and)
                 .logged(true)
                 .enabled(true)
                 .continued(true)
                 .handle(Upstreams.builder().add(Upstream.builder().upstreamUrl("httpbin.org:80").build()).build())
                 .conditionList(
-                        Lists.newArrayList(Condition.builder().paramType("uri").operator("match").paramName("/").paramValue("/**").build())
-                ).build();
+                        Lists.newArrayList(Condition.builder().paramType(ParamType.URI).operator(Operator.match).paramName("/").paramValue("/**").build())
+                )
+                .sort(1)
+                .build();
+        SelectorDTO selector = client.create(selectorData);
+        
+    }
+    
+    @Test
+    @Order(0)
+    void testCreateSelector() throws JsonProcessingException {
+        SelectorData selectorData = SelectorData.builder()
+                .name("my-plugin-divide")
+                .plugin(Plugin.DIVIDE)
+                .type(SelectorType.custom)
+                .matchMode(MatchMode.and)
+                .logged(true)
+                .enabled(true)
+                .continued(true)
+                .handle(Upstreams.builder().add(Upstream.builder().upstreamUrl("httpbin.org:80").build()).build())
+                .conditionList(
+                        Lists.newArrayList(Condition.builder().paramType(ParamType.URI).operator(Operator.match).paramName("/").paramValue("/**").build())
+                )
+                .sort(1)
+                .build();
         SelectorDTO selector = client.create(selectorData);
         List<SelectorDTO> selectors = client.searchSelector(selector.getName());
         Assertions.assertThat(selectors.size()).isEqualTo(1);
-    
+        
         ObjectMapper mapper = new ObjectMapper();
         System.out.println(mapper.writeValueAsString(selector));
-    
+        
         new SelectorMatcher(selectorData).matches(selector);
-        
-        
-        Assertions.assertThat(selectors.get(0)).matches(new ResourceMatcher<>(selectorData), "xx");
         
         RuleDTO ruleDTO = client.create(RuleData.builder()
                 .name("my-rule")
@@ -106,13 +138,13 @@ public class AdminClientTest {
                         .requestMaxSize(10240)
                         .build())
                 .sort(1)
-                .matchMode(1)
-                .selectorName(selector.getName())
+                .matchMode(MatchMode.and)
+                .selectorId(selector.getId())
                 .conditionList(Lists.newArrayList(Condition.builder()
                         .paramValue("/z")
-                        .paramType("uri")
+                        .paramType(ParamType.URI)
                         .paramName("/")
-                        .operator("=")
+                        .operator(Operator.EQUAL)
                         .build()))
                 .build());
         
@@ -120,7 +152,7 @@ public class AdminClientTest {
     }
     
     @Test
-    void testA(AdminClient client) {
+    void testA() {
         SelectorQueryCondition condition = SelectorQueryCondition.builder()
                 .keyword("my-plugin-divide-4b519a373ae8-2b9b5c50")
                 .switchStatus(true)
@@ -130,13 +162,13 @@ public class AdminClientTest {
     }
     
     @Test
-    void testDeleteAllSelectors(AdminClient client) {
+    void testDeleteAllSelectors() {
         client.deleteAllSelectors();
     }
     
     
     @Test
-    void testListRules(AdminClient client) {
+    void testListRules() {
         client.listAllRules().forEach(System.out::println);
     }
 }

@@ -15,10 +15,16 @@
  * limitations under the License.
  */
 
-package org.apache.shenyu.e2e.engine.scenario;
+package org.apache.shenyu.e2e.engine.scenario.function;
 
-import org.apache.shenyu.e2e.engine.annotation.ShenYuScenarioParameter;
+import org.apache.shenyu.e2e.client.gateway.GatewayClient;
 
-@ShenYuScenarioParameter
-public interface BeforeEachSpec {
+@FunctionalInterface
+public interface Checker {
+    
+    void check(GatewayClient client);
+    
+    Checker DEFAULT = supplier -> {
+    };
+    
 }

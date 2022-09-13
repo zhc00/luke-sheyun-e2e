@@ -15,20 +15,15 @@
  * limitations under the License.
  */
 
-package org.apache.shenyu.e2e.client;
+package org.apache.shenyu.e2e.engine.scenario.function;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import org.apache.shenyu.e2e.client.gateway.GatewayClient;
 
-import java.util.Properties;
-
-@Getter
-@AllArgsConstructor
-@Deprecated
-public class ExternalServiceClientConfig {
-    private final String serviceName;
-    private final int servicePort;
-    private final String schema;
-    private final String baseUrl;
-    private final Properties properties;
+@FunctionalInterface
+public interface Waiting {
+    
+    void waitFor(GatewayClient client);
+    
+    Waiting DEFAULT = supplier -> {
+    };
 }

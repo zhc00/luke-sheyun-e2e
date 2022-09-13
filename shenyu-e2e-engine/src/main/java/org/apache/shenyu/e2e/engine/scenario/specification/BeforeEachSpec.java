@@ -15,10 +15,20 @@
  * limitations under the License.
  */
 
-package org.apache.shenyu.e2e.engine.scenario;
+package org.apache.shenyu.e2e.engine.scenario.specification;
 
+import org.apache.shenyu.e2e.client.admin.model.ResourcesData;
 import org.apache.shenyu.e2e.engine.annotation.ShenYuScenarioParameter;
+import org.apache.shenyu.e2e.engine.scenario.function.Checker;
+import org.apache.shenyu.e2e.engine.scenario.function.Waiting;
 
 @ShenYuScenarioParameter
-public interface AfterEachSpec {
+public interface BeforeEachSpec {
+    
+    Checker getChecker();
+    
+    ResourcesData getResources();
+    
+    Waiting getWaiting();
+    
 }

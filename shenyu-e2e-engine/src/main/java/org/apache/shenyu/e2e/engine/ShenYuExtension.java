@@ -99,7 +99,7 @@ public class ShenYuExtension implements BeforeAllCallback, ExecutionCondition, A
         if (parameterType.isAnnotationPresent(ShenYuAdminClient.class)) {
             return context.getAdminClient();
         }
-        if (parameterType.isAssignableFrom(ShenYuGatewayClient.class)) {
+        if (parameterType.isAnnotationPresent(ShenYuGatewayClient.class)) {
             return context.getGatewayClient();
         }
         ExternalService service = AnnotationUtils.findAnnotation(parameterType, ExternalService.class)

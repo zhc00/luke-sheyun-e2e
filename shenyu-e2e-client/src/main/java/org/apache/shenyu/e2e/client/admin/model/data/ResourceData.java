@@ -17,6 +17,13 @@
 
 package org.apache.shenyu.e2e.client.admin.model.data;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import org.apache.shenyu.e2e.common.IdManagers.Selectors;
+
+import java.io.IOException;
+
 public interface ResourceData {
     
     String getId();
@@ -24,4 +31,14 @@ public interface ResourceData {
     String getName();
     
     void setName(String name);
+    
+    
+    class IntToStringSerializer extends JsonSerializer<String> {
+        
+        @Override
+        public void serialize(String name, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+            String id = Selectors.INSTANCE.getIdByName(name);
+            jsonGenerator.writeString(id);
+        }
+    }
 }

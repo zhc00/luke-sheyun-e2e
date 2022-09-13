@@ -15,31 +15,15 @@
  * limitations under the License.
  */
 
-package org.apache.shenyu.e2e.engine.scenario;
+package org.apache.shenyu.e2e.engine.scenario.function;
 
-import org.apache.shenyu.e2e.engine.annotation.ShenYuScenarioParameter;
+import io.restassured.specification.RequestSpecification;
 
-@ShenYuScenarioParameter
-public interface ShenYuScenarioSpec {
+public interface Verifier {
     
-    String getName();
+    void verify(RequestSpecification request);
     
-    default <T> T getByType(Class<T> type) {
-        if (type.isAssignableFrom(BeforeEachSpec.class)) {
-            return type.cast(getBeforeEachSpec());
-        }
-        if (type.isAssignableFrom(AfterEachSpec.class)) {
-            return type.cast(getAfterEachSpec());
-        }
-        if (type.isAssignableFrom(TestCaseSpec.class)) {
-            return type.cast(getTestCaseSpec());
-        }
-        return null;
-    }
+    Verifier DEFAULT = request -> {
+    };
     
-    BeforeEachSpec getBeforeEachSpec();
-    
-    TestCaseSpec getTestCaseSpec();
-    
-    AfterEachSpec getAfterEachSpec();
 }

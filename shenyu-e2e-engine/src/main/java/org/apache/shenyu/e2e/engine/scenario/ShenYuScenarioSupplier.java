@@ -18,6 +18,7 @@
 package org.apache.shenyu.e2e.engine.scenario;
 
 import com.google.common.collect.ImmutableList;
+import org.apache.shenyu.e2e.engine.scenario.specification.ScenarioSpec;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Iterator;
@@ -25,18 +26,23 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.function.Supplier;
 
-public class ShenYuScenarioSupplier implements Iterator<ShenYuScenarioSpec>, Supplier<ShenYuScenarioSpec>, Iterable<ShenYuScenarioSpec> {
-    private final ImmutableList<ShenYuScenarioSpec> supplies;
+public class ShenYuScenarioSupplier implements Iterator<ScenarioSpec>, Supplier<ScenarioSpec>, Iterable<ScenarioSpec> {
+    private final ImmutableList<ScenarioSpec> supplies;
     
     private int index = -1;
     
-    ShenYuScenarioSupplier(List<ShenYuScenarioSpec> supplies) {
-        this.supplies = ImmutableList.<ShenYuScenarioSpec>builder().addAll(supplies).build();
+    ShenYuScenarioSupplier(List<ScenarioSpec> supplies) {
+//        Builder<ShenYuScenarioSpec> builder = ImmutableList.builder();
+//        if (Objects.nonNull(supplies)) {
+//            builder.addAll(supplies);
+//        }
+//        this.supplies = builder.build();
+        this.supplies = ImmutableList.<ScenarioSpec>builder().addAll(supplies).build();
     }
     
     @NotNull
     @Override
-    public Iterator<ShenYuScenarioSpec> iterator() {
+    public Iterator<ScenarioSpec> iterator() {
         return supplies.iterator();
     }
     
@@ -44,7 +50,7 @@ public class ShenYuScenarioSupplier implements Iterator<ShenYuScenarioSpec>, Sup
         return supplies.size();
     }
     
-    public ShenYuScenarioSpec get(int index) {
+    public ScenarioSpec get(int index) {
         return supplies.get(index);
     }
     
@@ -55,11 +61,11 @@ public class ShenYuScenarioSupplier implements Iterator<ShenYuScenarioSpec>, Sup
     }
     
     @Override
-    public ShenYuScenarioSpec next() {
+    public ScenarioSpec next() {
         return get();
     }
     
-    public ShenYuScenarioSpec get() {
+    public ScenarioSpec get() {
         if (index < 0) {
             throw new NoSuchElementException();
         }

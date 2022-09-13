@@ -31,6 +31,7 @@ import java.util.List;
 
 @JsonSerialize(using = Serializer.class)
 public class Upstreams implements PluginHandle {
+    
     private List<Upstream> upstreams;
     
     Upstreams(List<Upstream> upstreams) {
@@ -41,7 +42,7 @@ public class Upstreams implements PluginHandle {
         return this.upstreams;
     }
     
-    public static final Builder builder() {
+    public static Builder builder() {
         return new Builder();
     }
     

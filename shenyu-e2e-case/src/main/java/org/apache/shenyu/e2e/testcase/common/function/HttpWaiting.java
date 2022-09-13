@@ -15,20 +15,21 @@
  * limitations under the License.
  */
 
-package org.apache.shenyu.e2e.client.gateway;
+package org.apache.shenyu.e2e.testcase.common.function;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import io.restassured.specification.RequestSpecification;
+import org.apache.shenyu.e2e.client.gateway.GatewayClient;
+import org.apache.shenyu.e2e.engine.scenario.function.Waiting;
 
-import java.util.Properties;
+import java.util.function.Supplier;
 
-@Getter
-@AllArgsConstructor
-@Deprecated
-public class GatewayClientConfig {
-    private final String serviceName;
-    private final int servicePort;
-    private final String schema;
-    private final String baseUrl;
-    private final Properties properties;
+@FunctionalInterface
+public interface HttpWaiting extends Waiting {
+    
+    default void waitFor(GatewayClient client) {
+        waitFor(client.getHttpRequesterSupplier());
+    }
+    
+    void waitFor(Supplier<RequestSpecification> supplier);
+
 }

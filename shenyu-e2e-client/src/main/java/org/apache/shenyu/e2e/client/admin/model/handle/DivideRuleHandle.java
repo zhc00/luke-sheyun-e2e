@@ -32,12 +32,18 @@ import org.apache.shenyu.e2e.client.admin.model.data.RuleData;
 @Data
 @Builder(toBuilder = true)
 public class DivideRuleHandle implements RuleHandle {
-    private String loadBalance;
-    private String retryStrategy;
+    
+    private String loadBalance; // todo enhancement, change to enum
+    
+    private String retryStrategy; // todo enhancement, change to enum
+    
     @JsonSerialize(converter = IntConverter.class)
     private int retry;
+    
     private long timeout;
+    
     private long headerMaxSize;
+    
     private long requestMaxSize;
     
     static class IntConverter implements Converter<Integer, String> {
@@ -60,11 +66,4 @@ public class DivideRuleHandle implements RuleHandle {
         }
     }
     
-    public static void main(String[] args) throws JsonProcessingException {
-        DivideRuleHandle data = DivideRuleHandle.builder().retry(123).build();
-        RuleData rule = RuleData.builder().handle(data).build();
-        
-        ObjectMapper mapper = new ObjectMapper();
-        System.out.println(mapper.writeValueAsString(rule));
-    }
 }
