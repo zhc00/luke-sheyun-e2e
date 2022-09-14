@@ -49,6 +49,11 @@
         <jsonassert.version>1.5.0</jsonassert.version>
         <lombok.version>1.18.24</lombok.version>
         <guava.version>31.1-jre</guava.version>
+        <log4j.version>2.18.0</log4j.version>
+        <slf4j.version>1.7.35</slf4j.version>
+        <jackson.version>2.13.3</jackson.version>
+        <rest-assured.version>5.2.0</rest-assured.version>
+        <jetbrain-annotations.version>23.0.0</jetbrain-annotations.version>
         <apache-rat-plugin.version>0.13</apache-rat-plugin.version>
     </properties>
 
@@ -129,25 +134,17 @@
 
     <dependencyManagement>
         <dependencies>
-            <dependency>
-                <groupId>org.apache.logging.log4j</groupId>
-                <artifactId>log4j-api</artifactId>
-            </dependency>
 
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
-                <artifactId>log4j-core</artifactId>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.logging.log4j</groupId>
-                <artifactId>log4j-slf4j-impl</artifactId>
+                <artifactId>log4j-bom</artifactId>
+                <version>${log4j.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
-                <version>1.7.35</version>
+                <version>${slf4j.version}</version>
             </dependency>
 
             <dependency>
@@ -177,7 +174,7 @@
             <dependency>
                 <groupId>com.fasterxml.jackson</groupId>
                 <artifactId>jackson-bom</artifactId>
-                <version>2.13.3</version>
+                <version>${jackson.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -185,7 +182,7 @@
             <dependency>
                 <groupId>org.jetbrains</groupId>
                 <artifactId>annotations</artifactId>
-                <version>23.0.0</version>
+                <version>${jetbrains-annotations.version}</version>
             </dependency>
 
             <dependency>
@@ -209,13 +206,13 @@
             <dependency>
                 <groupId>io.rest-assured</groupId>
                 <artifactId>rest-assured</artifactId>
-                <version>5.2.0</version>
+                <version>${rest-assured.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.rest-assured</groupId>
                 <artifactId>json-path</artifactId>
-                <version>5.2.0</version>
+                <version>${rest-assured.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

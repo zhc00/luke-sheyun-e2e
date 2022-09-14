@@ -20,12 +20,11 @@ package org.apache.shenyu.e2e.client.admin;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shenyu.e2e.annotation.ShenYuAdminClient;
+import org.apache.shenyu.e2e.client.admin.model.Plugin;
 import org.apache.shenyu.e2e.client.admin.model.ShenYuResult;
 import org.apache.shenyu.e2e.client.admin.model.data.ResourceData;
 import org.apache.shenyu.e2e.client.admin.model.data.RuleData;
@@ -42,7 +41,6 @@ import org.apache.shenyu.e2e.client.admin.model.response.ResourceDTO;
 import org.apache.shenyu.e2e.client.admin.model.response.RuleDTO;
 import org.apache.shenyu.e2e.client.admin.model.response.SearchedResources;
 import org.apache.shenyu.e2e.client.admin.model.response.SelectorDTO;
-import org.apache.shenyu.e2e.common.IdManagers.Plugins;
 import org.apache.shenyu.e2e.common.IdManagers.Rules;
 import org.apache.shenyu.e2e.common.IdManagers.Selectors;
 import org.apache.shenyu.e2e.common.NameUtils;
@@ -57,6 +55,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
@@ -127,19 +126,11 @@ public class AdminClient {
         Assertions.assertNotNull(token, "checking token not null");
         Assertions.assertNotEquals("", token, "checking token not empty");
         basicAuth.set("X-Access-Token", token);
-        
-        BiMap<String, String> name2id = HashBiMap.create();
-        List<PluginDTO> plugins = listPlugins();
-        plugins.forEach(dto -> name2id.put(dto.getName(), dto.getId()));
-        Plugins.INSTANCE.set(name2id);
-
-//        Map<String, String> pluginMap = Plugin.toMap();
-//        Assertions.assertEquals(name2id.size(), pluginMap.size(), "checking whether Plugin matches");
-//
-//        List<Entry<String, String>> notMatches = pluginMap.entrySet().stream()
-//                .filter(e -> e.getValue().equals(name2id.get(e.getKey())))
-//                .collect(Collectors.toList());
-//        Assertions.assertFalse(notMatches.isEmpty(), "Plugins does match: " + notMatches);
+    
+        Map<String, String> nameNidMap = Plugin.toMap();
+        listPlugins().forEach(dto -> {
+            Assertions.assertEquals(dto.getId(), nameNidMap.get(dto.getName()), "checking Plugin[" + dto.getName() + "]'s id");
+        });
     }
     
     public List<PluginDTO> listPlugins() {
@@ -240,6 +231,8 @@ public class AdminClient {
     }
     
     private <T extends ResourceData, R extends ResourceDTO> R create(String uri, T data) {
+        log.info("trying to create resource({}) name: {}", data.getClass().getSimpleName(), data.getName());
+        
         data.setName(NameUtils.wrap(data.getName(), scenarioId));
         
         HttpEntity<T> entity = new HttpEntity<>(data, basicAuth);
@@ -258,6 +251,7 @@ public class AdminClient {
             created = searchRule(data.getName()).get(0);
         }
         Assertions.assertNotNull(created, "checking created object is non-null");
+        log.info("create resource({}) successful. name: {}, id: {}", data.getClass().getSimpleName(), data.getName(), created.getId());
         
         return (R) created;
     }

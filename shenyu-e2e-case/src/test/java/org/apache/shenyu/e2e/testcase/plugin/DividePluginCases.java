@@ -45,7 +45,7 @@ public class DividePluginCases implements ShenYuScenarioProvider {
         
         return List.of(
                 ShenYuScenarioSpec.builder()
-                        .name("yy")
+                        .name("divide-single rule[uri=]")
                         .beforeEachSpec(
                                 ShenYuBeforeEachSpec.builder()
                                         .addSelectorAndRule(
