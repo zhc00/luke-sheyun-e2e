@@ -32,11 +32,6 @@ public class ShenYuScenarioSupplier implements Iterator<ScenarioSpec>, Supplier<
     private int index = -1;
     
     ShenYuScenarioSupplier(List<ScenarioSpec> supplies) {
-//        Builder<ShenYuScenarioSpec> builder = ImmutableList.builder();
-//        if (Objects.nonNull(supplies)) {
-//            builder.addAll(supplies);
-//        }
-//        this.supplies = builder.build();
         this.supplies = ImmutableList.<ScenarioSpec>builder().addAll(supplies).build();
     }
     

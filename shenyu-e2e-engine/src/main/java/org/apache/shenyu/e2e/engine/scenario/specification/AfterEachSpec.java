@@ -28,7 +28,6 @@ public interface AfterEachSpec {
     
     Checker getPostChecker();
     
-    
     AfterEachSpec DEFAULT = new AfterEachSpec() {
         @Override
         public Deleter getDeleter() {

@@ -36,7 +36,4 @@ public class ShenYuAfterEachSpec implements AfterEachSpec {
     
     public static final ShenYuAfterEachSpec DEFAULT = new ShenYuAfterEachSpec(Deleter.DEFAULT, Checker.DEFAULT);
     
-    public static void main(String[] args) {
-    
-    }
 }

@@ -24,9 +24,9 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.shenyu.e2e.annotation.ShenYuAdminClient;
 import org.apache.shenyu.e2e.client.admin.model.ShenYuResult;
-import org.apache.shenyu.e2e.client.admin.model.Plugin;
 import org.apache.shenyu.e2e.client.admin.model.data.ResourceData;
 import org.apache.shenyu.e2e.client.admin.model.data.RuleData;
 import org.apache.shenyu.e2e.client.admin.model.data.SearchCondition;
@@ -57,11 +57,10 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
+@Slf4j
 @ShenYuAdminClient
 public class AdminClient {
     private final MultiValueMap<String, String> basicAuth = new HttpHeaders();
@@ -133,7 +132,7 @@ public class AdminClient {
         List<PluginDTO> plugins = listPlugins();
         plugins.forEach(dto -> name2id.put(dto.getName(), dto.getId()));
         Plugins.INSTANCE.set(name2id);
-    
+
 //        Map<String, String> pluginMap = Plugin.toMap();
 //        Assertions.assertEquals(name2id.size(), pluginMap.size(), "checking whether Plugin matches");
 //
@@ -286,21 +285,25 @@ public class AdminClient {
         String listAllResourcesUrl = uri.replace("/batch", "");
         List<String> ids = list(listAllResourcesUrl, FAKE_VALUE_TYPE, FakeResourceDTO::getId);
         
-        System.out.println("xxx ids: " + ids);
-        
         delete(uri, ids);
-        // log, effected rows: ids.size();
         
         List<FakeResourceDTO> result = list(listAllResourcesUrl, FAKE_VALUE_TYPE);
-        Assertions.assertTrue(result.isEmpty(), "checking resource list is empty after deleted");
+        Assertions.assertTrue(result.isEmpty(), "checking whether resource list is empty after deleted");
     }
     
     private void delete(String uri, List<String> ids) {
+        if (ids.isEmpty()) {
+            log.info("delete resources, effected size: 0, cause by: there is not resources in ShenYuAdmin");
+            return;
+        }
+        
         HttpEntity<List<String>> entity = new HttpEntity<>(ids, basicAuth);
         ResponseEntity<ShenYuResult> response = template.exchange(baseURL + uri, HttpMethod.DELETE, entity, ShenYuResult.class);
         ShenYuResult rst = assertAndGet(response, "delete success");
         Integer deleted = Assertions.assertDoesNotThrow(() -> rst.toObject(Integer.class), "checking to cast object");
         Assertions.assertEquals(ids.size(), deleted, "checking deleted records");
+        
+        log.info("delete resources, effected size: {}, effected rows: {}", ids.size(), ids);
     }
     
     public <T extends ResourceDTO> T getResource(String uri, QueryCondition condition, TypeReference<SearchedResources<T>> valueType) {

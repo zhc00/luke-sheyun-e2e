@@ -30,7 +30,9 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 public class ShenYuCaseSpec implements CaseSpec {
+    
     private final String name;
+    
     private final List<Verifier> verifiers;
     
     public static ShenYuTestCaseSpecBuilder builder() {

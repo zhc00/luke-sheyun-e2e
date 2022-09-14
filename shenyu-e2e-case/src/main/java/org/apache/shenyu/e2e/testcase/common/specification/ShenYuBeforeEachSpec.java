@@ -17,7 +17,6 @@
 
 package org.apache.shenyu.e2e.testcase.common.specification;
 
-import com.google.common.collect.ImmutableList;
 import io.restassured.http.Method;
 import io.restassured.specification.ResponseSpecification;
 import lombok.AccessLevel;
@@ -35,8 +34,6 @@ import org.apache.shenyu.e2e.testcase.common.function.HttpWaiting;
 import org.apache.shenyu.e2e.testcase.common.function.WaitForHelper;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.concurrent.TimeoutException;
-
 @Getter
 @AllArgsConstructor(access = AccessLevel.PACKAGE)
 public class ShenYuBeforeEachSpec implements BeforeEachSpec {
@@ -47,7 +44,6 @@ public class ShenYuBeforeEachSpec implements BeforeEachSpec {
     public static ShenYuBeforeEachSpecBuilder builder() {
         return new ShenYuBeforeEachSpecBuilder();
     }
-    
     
     public static class ShenYuBeforeEachSpecBuilder {
         private final ResourcesDataBuilder builder = ResourcesData.builder();
@@ -74,14 +70,9 @@ public class ShenYuBeforeEachSpec implements BeforeEachSpec {
             return this;
         }
         
-        @Deprecated
         public ShenYuBeforeEachSpecBuilder waiting(@NotNull Checker checker) {
             this.waiting = (HttpWaiting) supplier -> {
-                try {
-                    new WaitForHelper().waitFor(supplier, (HttpChecker) checker);
-                } catch (TimeoutException e) {
-                    e.printStackTrace();
-                }
+                WaitForHelper.waitForEffecting(supplier, (HttpChecker) checker);
             };
             return this;
         }

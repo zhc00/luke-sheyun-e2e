@@ -20,6 +20,7 @@ package org.apache.shenyu.e2e.testcase.common.function;
 import io.restassured.specification.RequestSpecification;
 import org.apache.shenyu.e2e.client.gateway.GatewayClient;
 import org.apache.shenyu.e2e.engine.scenario.function.Checker;
+import org.slf4j.MDC;
 
 import java.util.function.Supplier;
 
@@ -31,7 +32,11 @@ public interface HttpChecker extends Checker, HttpVerifier {
     }
     
     default void check(Supplier<RequestSpecification> supplier) {
-        verify(supplier.get());
+        try {
+            verify(supplier.get());
+        } catch (AssertionError e) {
+            throw new AssertionError("failed to request " + MDC.get("endpoint"), e);
+        }
     }
     
 }
