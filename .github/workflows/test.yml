@@ -1,0 +1,13 @@
+name: Java CI with Maven
+
+on:
+  push:
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - run: docker-compose -f shenyu-e2e-client/src/test/resources/docker-compose.yml up
